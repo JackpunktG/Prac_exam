@@ -6,7 +6,7 @@ int main(int argc, char* argv[])
 
     if (argc < 2)
     {
-        printf("Args: %s <fragen_anzahl> <y*> <ziel_ordner*>\n*optional; <y> typst file zu behalten\n", argv[0]);
+        printf("Args: %s <fragen_anzahl> <y*> <datei_name*>\n*optional; <y> typst file zu behalten\n", argv[0]);
         return 1;
     }
     const uint8_t frage_anzahl = atoi(argv[1]);

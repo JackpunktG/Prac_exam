@@ -26,12 +26,19 @@ typedef struct
     uint64_t length;
 } String;
 
+typedef enum
+{
+    FRAGE_STANDARD,
+    FRAGE_DIREKT_PDF
+} Frage_Type;
+
 typedef struct
 {
     uint32_t thema;
     uint8_t frage_sub_count;
     uint8_t wichtigkeit;
     uint8_t gewaehlt_flag;
+    uint8_t frage_data_type;
     String* szenario;
     String** fragen;
     String** schreib_platz;
@@ -299,24 +306,34 @@ Frage_Controller* controller_init(const char* path)
         }
         else if (line_spec == SZENARIO)
         {
-            uint8_t lines;
-            sscanf(buffer, "[Szenario: %hhu]", &lines);
-
-            char szenario[2000];
-            uint32_t i = 0;
-            uint8_t count = 0;
-            while(fgets(buffer, sizeof(buffer), file_ptr))
+            if (strncmp(buffer, "[PDF: ", 6) == 0) //direkt pdf
             {
-                memcpy(szenario + i, buffer, sizeof(char) * strlen(buffer));
-                i += strlen(buffer);
-                ++count;
-                if (count == lines)
-                    break;
+                input_frage->szenario = string_cnbuf(controller, buffer, 6, strlen(buffer) - 2);
+                input_frage->frage_data_type = FRAGE_DIREKT_PDF;
+                line_spec = FRAGE_FLAGGEN;
             }
-            szenario[--i] = '\0'; // remove the last newline character
-            input_frage->szenario = string_cbuf(controller, szenario);
+            else
+            {
+                uint8_t lines;
+                sscanf(buffer, "[Szenario: %hhu]", &lines);
 
-            line_spec = FRAGE_NUMBER;
+                char szenario[2000];
+                uint32_t i = 0;
+                uint8_t count = 0;
+                while(fgets(buffer, sizeof(buffer), file_ptr))
+                {
+                    memcpy(szenario + i, buffer, sizeof(char) * strlen(buffer));
+                    i += strlen(buffer);
+                    ++count;
+                    if (count == lines)
+                        break;
+                }
+                szenario[--i] = '\0'; // remove the last newline character
+                input_frage->szenario = string_cbuf(controller, szenario);
+
+                input_frage->frage_data_type = FRAGE_STANDARD;
+                line_spec = FRAGE_NUMBER;
+            }
         }
         else if (line_spec == FRAGE_NUMBER)
         {
@@ -451,7 +468,7 @@ enum
     PLATZ = 'P'
 };
 
-void pruefung_generieren(Frage_Controller* controller, uint32_t* fragen_index, const uint8_t frage_count, const bool delete_typst_file, const char* ziel_ordner)
+void pruefung_generieren(Frage_Controller* controller, uint32_t* fragen_index, const uint8_t frage_count, const bool delete_typst_file, const char* datei_name)
 {
     time_t seconds = time(NULL);
     // Convert to broken-down local time
@@ -469,48 +486,75 @@ void pruefung_generieren(Frage_Controller* controller, uint32_t* fragen_index, c
     {
         Frage* frage = controller->frage[fragen_index[i]];
 
-        fprintf(file_ptr, "= Frage: %u\n", i +1);
-
-        fwrite(frage->szenario->data, 1, frage->szenario->length, file_ptr);
-        fputc('\\', file_ptr);
-        fputc('\n', file_ptr);
-
-        for (uint8_t k = 0; k < frage->frage_sub_count; ++k)
+        switch (frage->frage_data_type)
         {
-            fwrite(frage->fragen[k]->data, 1, frage->fragen[k]->length, file_ptr);
+        case FRAGE_STANDARD:
+        {
+            fprintf(file_ptr, "= Frage: %u\n", i +1);
+
+            fwrite(frage->szenario->data, 1, frage->szenario->length, file_ptr);
             fputc('\\', file_ptr);
             fputc('\n', file_ptr);
-            switch (frage->schreib_platz[k]->data[0])
+
+            for (uint8_t k = 0; k < frage->frage_sub_count; ++k)
             {
-            case LINIEN:
-            {
-                uint8_t lines;
-                sscanf(frage->schreib_platz[k]->data, "L%hhu", &lines);
-                for(uint8_t j = 0; j < lines; ++j)
-                    fprintf(file_ptr, "#v(1em) #line(length: 100%%)\n");
-                break;
+                fwrite(frage->fragen[k]->data, 1, frage->fragen[k]->length, file_ptr);
+                fputc('\\', file_ptr);
+                fputc('\n', file_ptr);
+                switch (frage->schreib_platz[k]->data[0])
+                {
+                case LINIEN:
+                {
+                    uint8_t lines;
+                    sscanf(frage->schreib_platz[k]->data, "L%hhu", &lines);
+                    for(uint8_t j = 0; j < lines; ++j)
+                        fprintf(file_ptr, "#v(1em) #line(length: 100%%)\n");
+                    break;
+                }
+                case BILD:
+                {
+                    char path[100];
+                    memcpy(path, frage->schreib_platz[k]->data + 2, frage->schreib_platz[k]->length - 3);
+                    path[frage->schreib_platz[k]->length -3] = '\0';
+                    fprintf(file_ptr, "#image(\"IHK_Fragen/dateien/%s\", height: 60%%)\n", path);
+                    break;
+                }
+                case PLATZ:
+                {
+                    uint8_t lines;
+                    sscanf(frage->schreib_platz[k]->data, "P%hhu", &lines);
+                    fprintf(file_ptr, "#v(%uem)\n", lines);
+                    break;
+                }
+                default:
+                    assert(false);
+                }
             }
-            case BILD:
-            {
-                char path[100];
-                memcpy(path, frage->schreib_platz[k]->data + 2, frage->schreib_platz[k]->length - 3);
-                path[frage->schreib_platz[k]->length -3] = '\0';
-                fprintf(file_ptr, "#image(\"IHK_Fragen/bilder/%s\", height: 60%%)\n", path);
-                break;
-            }
-            case PLATZ:
-            {
-                uint8_t lines;
-                sscanf(frage->schreib_platz[k]->data, "P%hhu", &lines);
-                fprintf(file_ptr, "#v(%uem)\n", lines);
-                break;
-            }
-            default:
-                assert(false);
-            }
+            break;
         }
+        case FRAGE_DIREKT_PDF:
+        {
+            char path[100];
+            memcpy(path, frage->szenario->data, frage->szenario->length);
+            path[frage->szenario->length] = '\0';
+            fprintf(file_ptr, "#pagebreak()\n");
+            for(uint8_t k = 0; k < frage->frage_sub_count; ++k)
+            {
+                fprintf(file_ptr, "#align(horizon + center)[#image(\"IHK_Fragen/dateien/%s\", page: %i, width: 100%%, fit: \"contain\")]", path, k +1);
+                if (k +1 == frage->frage_sub_count && i +1 == frage_count)
+                    break;
+                fprintf(file_ptr, "\n\n#pagebreak()");
+            }
+            break;
+        }
+        default:
+            assert(false && "ERROR - unknown frage data type");
+
+        }
+
         fprintf(file_ptr, "\n\n");
     }
+
     fclose(file_ptr);
 
 
@@ -528,22 +572,6 @@ void pruefung_generieren(Frage_Controller* controller, uint32_t* fragen_index, c
         printf("Command exited with code: %d\n", WEXITSTATUS(compile_typst));
     }
 
-    if (ziel_ordner != NULL)
-    {
-        buffer[strlen(buffer) - 4] = '\0'; // remove .typ extension
-        char move_command[256];
-        snprintf(move_command, sizeof(move_command), "mv %s.pdf %s", buffer, ziel_ordner);
-        int move_result = system(move_command);
-        if (move_result == -1)
-        {
-            perror("system() failed");
-            return;
-        }
-        else
-        {
-            printf("Move command exited with code: %d\n", WEXITSTATUS(move_result));
-        }
-    }
     if (delete_typst_file)
     {
         if (remove(buffer) != 0)
@@ -551,6 +579,39 @@ void pruefung_generieren(Frage_Controller* controller, uint32_t* fragen_index, c
         else
             printf("File deleted successfully\n");
     }
+    if (datei_name != NULL)
+    {
+        if (!delete_typst_file)
+        {
+            char rename_command[256];
+            snprintf(rename_command, sizeof(rename_command), "mv %s %s.typ", buffer, datei_name);
+            int move_result = system(rename_command);
+            if (move_result == -1)
+            {
+                perror("system() failed");
+            }
+            else
+            {
+                printf("Move command exited with code: %d\n", WEXITSTATUS(move_result));
+            }
+        }
+        buffer[strlen(buffer) - 4] = '\0';
+        char pdf_name[128];
+        snprintf(pdf_name, sizeof(pdf_name), "%s", buffer);
+        char rename_pdf_command[256];
+        snprintf(rename_pdf_command, sizeof(rename_pdf_command), "mv %s.pdf %s.pdf", pdf_name, datei_name);
+        int rename_pdf_result = system(rename_pdf_command);
+        if (rename_pdf_result == -1)
+        {
+            perror("system() failed");
+        }
+        else
+        {
+            printf("Rename PDF command exited with code: %d\n", WEXITSTATUS(rename_pdf_result));
+        }
+    }
+
 
     return;
 }
+

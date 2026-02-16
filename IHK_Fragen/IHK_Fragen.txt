@@ -61,4 +61,10 @@ beschrieben werden.
 [00000000, wichtigkeit: 2]
 }
 
-
+#frage = {
+[Thema]
+Moddellierung, UML, OOP
+[Frage_sub_count: 5]
+[PDF: uml_OOP1.pdf]
+[00000000, wichtigkeit: 2]
+}
