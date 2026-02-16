@@ -1,6 +1,6 @@
 #frage = {
 [Thema]
-Systemanalyse,MODELLIERUNG
+UML,EPK,Entscheidungstabelle
 [Frage_sub_count: 2]
 [Szenario: 9]
 Der Zahlungsprozess im Onlineshop der Fahrradfactory GmbH soll wie folgt organisiert werden:
@@ -21,7 +21,7 @@ Nach der Festlegung der Zahlungsart erfolgt die Zahlung.
 
 #frage = {
 [Thema]
-Systemanalyse,ModellIerung
+UML,EPK
 [Frage_sub_count: 1]
 [Szenario: 10]
 Folgende Sachverhaltsschilderung des Vertriebsmitarbeiters des Unternehmens, dessen
@@ -41,7 +41,7 @@ mich der Auftrag bearbeitet.“
 
 #frage = {
 [Thema]
-Modellierung
+UML,EPK
 [Frage_sub_count: 1]
 [Szenario: 12]
 Im Wareneingangsbereich der neuen Lagerhalle sind die Warenengangskontrolle und die
@@ -63,8 +63,240 @@ beschrieben werden.
 
 #frage = {
 [Thema]
-Moddellierung, UML, OOP
-[Frage_sub_count: 5]
+UML,OOP,IHK
+[PDF_page_count: 5]
 [PDF: uml_OOP1.pdf]
+[00000000, wichtigkeit: 2]
+}
+
+#frage = {
+[Thema]
+UML,EPK
+[PDF_part: 2]
+[PDF: 7 Modelling_Uebungsheft_FIAN.pdf]
+[00000000, wichtigkeit: 2]
+}
+
+#frage = {
+[Thema]
+UML,EPK
+[PDF_part: 3]
+[PDF: 9 Modelling_Uebungsheft_FIAN.pdf]
+[00000000, wichtigkeit: 2]
+}
+
+#frage = {
+[Thema]
+UML,EPK
+[PDF_part: 1]
+[PDF: 12 Modelling_Uebungsheft_FIAN.pdf]
+[00000000, wichtigkeit: 2]
+}
+
+#frage = {
+[Thema]
+UML,ERM
+[PDF_part: 1]
+[PDF: 13 Modelling_Uebungsheft_FIAN.pdf]
+[00000000, wichtigkeit: 2]
+}
+
+#frage = {
+[Thema]
+UML,ERM
+[PDF_part: 1]
+[PDF: 14 Modelling_Uebungsheft_FIAN.pdf]
+[00000000, wichtigkeit: 2]
+}
+
+#frage = {
+[Thema]
+UML,ERM
+[PDF_part: 2]
+[PDF: 15 Modelling_Uebungsheft_FIAN.pdf]
+[00000000, wichtigkeit: 2]
+}
+
+#frage = {
+[Thema]
+UML,ERM
+[PDF_part: 1]
+[PDF: 17 Modelling_Uebungsheft_FIAN.pdf]
+[00000000, wichtigkeit: 2]
+}
+
+#frage = {
+[Thema]
+UML,ERM
+[PDF_part: 1]
+[PDF: 18 Modelling_Uebungsheft_FIAN.pdf]
+[00000000, wichtigkeit: 2]
+}
+
+#frage = {
+[Thema]
+UML,ERM
+[PDF_part: 3]
+[PDF: 19 Modelling_Uebungsheft_FIAN.pdf]
+[00000000, wichtigkeit: 2]
+}
+
+#frage = {
+[Thema]
+UML,ERM,IHK
+[PDF_part: 1]
+[PDF: 22 Modelling_Uebungsheft_FIAN.pdf]
+[00000000, wichtigkeit: 2]
+}
+
+#frage = {
+[Thema]
+UML,ERM
+[PDF_part: 1]
+[PDF: 23 Modelling_Uebungsheft_FIAN.pdf]
+[00000000, wichtigkeit: 2]
+}
+
+#frage = {
+[Thema]
+UML,Entscheidungstabelle
+[PDF_part: 1]
+[PDF: 24 Modelling_Uebungsheft_FIAN.pdf]
+[00000000, wichtigkeit: 2]
+}
+
+#frage = {
+[Thema]
+UML,Entscheidungstabelle
+[PDF_part: 1]
+[PDF: 25 Modelling_Uebungsheft_FIAN.pdf]
+[00000000, wichtigkeit: 2]
+}
+
+#frage = {
+[Thema]
+UML,Anwendungsfalldiagramme
+[PDF_part: 1]
+[PDF: 26 Modelling_Uebungsheft_FIAN.pdf]
+[00000000, wichtigkeit: 2]
+}
+
+#frage = {
+[Thema]
+UML,Anwendungsfalldiagramme
+[PDF_part: 1]
+[PDF: 27 Modelling_Uebungsheft_FIAN.pdf]
+[00000000, wichtigkeit: 2]
+}
+
+#frage = {
+[Thema]
+UML,Anwendungsfalldiagramme
+[PDF_part: 1]
+[PDF: 28 Modelling_Uebungsheft_FIAN.pdf]
+[00000000, wichtigkeit: 2]
+}
+
+#frage = {
+[Thema]
+UML,Anwendungsfalldiagramme
+[PDF_part: 1]
+[PDF: 29 Modelling_Uebungsheft_FIAN.pdf]
+[00000000, wichtigkeit: 2]
+}
+
+#frage = {
+[Thema]
+UML,Anwendungsfalldiagramme
+[PDF_part: 1]
+[PDF: 30 Modelling_Uebungsheft_FIAN.pdf]
+[00000000, wichtigkeit: 2]
+}
+
+#frage = {
+[Thema]
+UML,Anwendungsfalldiagramme
+[PDF_part: 1]
+[PDF: 31 Modelling_Uebungsheft_FIAN.pdf]
+[00000000, wichtigkeit: 2]
+}
+
+#frage = {
+[Thema]
+UML,Aktivitaetsdiagrammer
+[PDF_part: 2]
+[PDF: 32 Modelling_Uebungsheft_FIAN.pdf]
+[00000000, wichtigkeit: 2]
+}
+
+#frage = {
+[Thema]
+UML,Aktivitaetsdiagrammer
+[PDF_part: 1]
+[PDF: 34 Modelling_Uebungsheft_FIAN.pdf]
+[00000000, wichtigkeit: 2]
+}
+
+#frage = {
+[Thema]
+UML,Aktivitaetsdiagrammer
+[PDF_part: 1]
+[PDF: 35 Modelling_Uebungsheft_FIAN.pdf]
+[00000000, wichtigkeit: 2]
+}
+
+#frage = {
+[Thema]
+UML,Aktivitaetsdiagrammer
+[PDF_part: 2]
+[PDF: 36 Modelling_Uebungsheft_FIAN.pdf]
+[00000000, wichtigkeit: 2]
+}
+
+#frage = {
+[Thema]
+UML,Klassendiagramme
+[PDF_part: 1]
+[PDF: 38 Modelling_Uebungsheft_FIAN.pdf]
+[00000000, wichtigkeit: 2]
+}
+
+#frage = {
+[Thema]
+UML,Klassendiagramme
+[PDF_part: 1]
+[PDF: 39 Modelling_Uebungsheft_FIAN.pdf]
+[00000000, wichtigkeit: 2]
+}
+
+#frage = {
+[Thema]
+UML,Klassendiagramme
+[PDF_part: 1]
+[PDF: 40 Modelling_Uebungsheft_FIAN.pdf]
+[00000000, wichtigkeit: 2]
+}
+
+#frage = {
+[Thema]
+UML,Klassendiagramme
+[PDF_part: 1]
+[PDF: 41 Modelling_Uebungsheft_FIAN.pdf]
+[00000000, wichtigkeit: 2]
+}
+
+#frage = {
+[Thema]
+UML,Klassendiagramme
+[PDF_part: 1]
+[PDF: 42 Modelling_Uebungsheft_FIAN.pdf]
+[00000000, wichtigkeit: 2]
+}
+
+#frage = {
+[Thema]
+UML,Klassendiagramme
+[PDF_part: 1]
+[PDF: 43 Modelling_Uebungsheft_FIAN.pdf]
 [00000000, wichtigkeit: 2]
 }

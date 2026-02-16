@@ -29,7 +29,8 @@ typedef struct
 typedef enum
 {
     FRAGE_STANDARD,
-    FRAGE_DIREKT_PDF
+    FRAGE_DIREKT_PDF,
+    FRAGE_PDF_TEIL
 } Frage_Type;
 
 typedef struct
@@ -299,17 +300,29 @@ Frage_Controller* controller_init(const char* path)
         }
         else if (line_spec == FRAGE_SUB_COUNT)
         {
-            sscanf(buffer, "[Frage_sub_count: %hhu]", &input_frage->frage_sub_count);
-            input_frage->fragen = (String**)arena_alloc(arena, sizeof(String*) * input_frage->frage_sub_count, NULL);
-            input_frage->schreib_platz = (String**)arena_alloc(arena, sizeof(String*) * input_frage->frage_sub_count, NULL);
+            if (strncmp(buffer, "[PDF_page_count: ", 17) == 0) //direkt pdf
+            {
+                sscanf(buffer, "[PDF_page_count: %hhu]", &input_frage->frage_sub_count);
+                input_frage->frage_data_type = FRAGE_DIREKT_PDF;
+            }
+            else if (strncmp(buffer, "[PDF_part: ", 11) == 0)
+            {
+                sscanf(buffer, "[PDF_part: %hhu]", &input_frage->frage_sub_count);
+                input_frage->frage_data_type = FRAGE_PDF_TEIL;
+            }
+            else
+            {
+                sscanf(buffer, "[Frage_sub_count: %hhu]", &input_frage->frage_sub_count);
+                input_frage->fragen = (String**)arena_alloc(arena, sizeof(String*) * input_frage->frage_sub_count, NULL);
+                input_frage->schreib_platz = (String**)arena_alloc(arena, sizeof(String*) * input_frage->frage_sub_count, NULL);
+            }
             line_spec = SZENARIO;
         }
         else if (line_spec == SZENARIO)
         {
-            if (strncmp(buffer, "[PDF: ", 6) == 0) //direkt pdf
+            if (input_frage->frage_data_type == FRAGE_DIREKT_PDF || input_frage->frage_data_type == FRAGE_PDF_TEIL) //direkt pdf
             {
                 input_frage->szenario = string_cnbuf(controller, buffer, 6, strlen(buffer) - 2);
-                input_frage->frage_data_type = FRAGE_DIREKT_PDF;
                 line_spec = FRAGE_FLAGGEN;
             }
             else
@@ -461,6 +474,23 @@ uint32_t* fragen_auswaehlen(Frage_Controller* controller, uint8_t frage_count)
     return frage_index;
 }
 
+uint32_t first_page(String* string)
+{
+    char tmp[24];
+    uint8_t i = 0;
+    while(string->data[i] != ' ')
+    {
+        tmp[i] = string->data[i];
+        ++i;
+    }
+    tmp[++i] = '\0';
+
+    memmove(string->data, string->data + i, string->length - i);
+    string->length -= (i);
+
+    return atoi(tmp);
+}
+
 enum
 {
     LINIEN = 'L',
@@ -476,6 +506,7 @@ void pruefung_generieren(Frage_Controller* controller, uint32_t* fragen_index, c
     char buffer[128];
     strftime(buffer, sizeof(buffer), "%h_%m_%s_pruefung.typ", local);
     printf("Generating file: %s\n", buffer);
+    bool from_pdf = false;
 
     FILE* file_ptr = fopen(buffer, "w");
 
@@ -490,6 +521,10 @@ void pruefung_generieren(Frage_Controller* controller, uint32_t* fragen_index, c
         {
         case FRAGE_STANDARD:
         {
+            if (from_pdf)
+                fprintf(file_ptr, "#pagebreak()\n");
+            from_pdf = false;
+
             fprintf(file_ptr, "= Frage: %u\n", i +1);
 
             fwrite(frage->szenario->data, 1, frage->szenario->length, file_ptr);
@@ -537,14 +572,36 @@ void pruefung_generieren(Frage_Controller* controller, uint32_t* fragen_index, c
             char path[100];
             memcpy(path, frage->szenario->data, frage->szenario->length);
             path[frage->szenario->length] = '\0';
-            fprintf(file_ptr, "#pagebreak()\n");
+            if (i != 0)
+                fprintf(file_ptr, "#pagebreak()\n");
             for(uint8_t k = 0; k < frage->frage_sub_count; ++k)
             {
                 fprintf(file_ptr, "#align(horizon + center)[#image(\"IHK_Fragen/dateien/%s\", page: %i, width: 100%%, fit: \"contain\")]", path, k +1);
                 if (k +1 == frage->frage_sub_count && i +1 == frage_count)
                     break;
-                fprintf(file_ptr, "\n\n#pagebreak()");
+                if (k +1 != frage->frage_sub_count)
+                    fprintf(file_ptr, "\n\n#pagebreak()");
             }
+            from_pdf = true;
+            break;
+        }
+        case FRAGE_PDF_TEIL:
+        {
+            char path[100];
+            uint32_t start_page_number = first_page(frage->szenario);
+            memcpy(path, frage->szenario->data, frage->szenario->length);
+            path[frage->szenario->length] = '\0';
+            if (i != 0)
+                fprintf(file_ptr, "#pagebreak()\n");
+            for(uint8_t k = 0; k < frage->frage_sub_count; ++k)
+            {
+                fprintf(file_ptr, "#align(horizon + center)[#image(\"IHK_Fragen/dateien/%s\", page: %u, width: 100%%, fit: \"contain\")]", path, start_page_number++);
+                if (k +1 == frage->frage_sub_count && i +1 == frage_count)
+                    break;
+                if (k +1 != frage->frage_sub_count)
+                    fprintf(file_ptr, "\n\n#pagebreak()");
+            }
+            from_pdf = true;
             break;
         }
         default:
