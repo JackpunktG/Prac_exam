@@ -300,3 +300,35 @@ UML,Klassendiagramme
 [PDF: 43 Modelling_Uebungsheft_FIAN.pdf]
 [00000000, wichtigkeit: 2]
 }
+
+#frage = {
+[Thema]
+UML,IHK
+[PDF_page_count: 2]
+[PDF: Winter_2021_2022_GAI_9-10.pdf]
+[00000000, wichtigkeit: 2]
+}
+
+#frage = {
+[Thema]
+UML,IHK,Klassendiagramme
+[PDF_page_count: 3]
+[PDF: FIAN_GA1_2223.pdf]
+[00000000, wichtigkeit: 2]
+}
+
+#frage = {
+[Thema]
+UML,IHK,Klassendiagramme
+[PDF_page_count: 2]
+[PDF: Uebung_Klassendiagramm_So23.pdf]
+[00000000, wichtigkeit: 2]
+}
+
+#frage = {
+[Thema]
+UML,IHK,Aktivitaetsdiagrammer,SQL
+[PDF_page_count: 2]
+[PDF: ihk_sql_uml.pdf]
+[00000000, wichtigkeit: 2]
+}

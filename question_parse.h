@@ -507,11 +507,12 @@ void pruefung_generieren(Frage_Controller* controller, uint32_t* fragen_index, c
     strftime(buffer, sizeof(buffer), "%h_%m_%s_pruefung.typ", local);
     printf("Generating file: %s\n", buffer);
     bool from_pdf = false;
+    bool margin_zero = false;
 
     FILE* file_ptr = fopen(buffer, "w");
 
-    fprintf(file_ptr, "#set page(margin: (x: 1.5cm, y: 1.5cm))\n");
     fprintf(file_ptr, "#set text(size: 9pt, font: \"P052\")\n\n");
+    fprintf(file_ptr, "#set page(margin: (x: 1.5cm, y: 1.5cm))\n");
 
     for (uint8_t i = 0; i < frage_count; ++i)
     {
@@ -521,9 +522,16 @@ void pruefung_generieren(Frage_Controller* controller, uint32_t* fragen_index, c
         {
         case FRAGE_STANDARD:
         {
+            if (margin_zero)
+            {
+                fprintf(file_ptr, "#set page(margin: (x: 1.5cm, y: 1.5cm))\n");
+                margin_zero = false;
+            }
             if (from_pdf)
+            {
                 fprintf(file_ptr, "#pagebreak()\n");
-            from_pdf = false;
+                from_pdf = false;
+            }
 
             fprintf(file_ptr, "= Frage: %u\n", i +1);
 
@@ -569,6 +577,11 @@ void pruefung_generieren(Frage_Controller* controller, uint32_t* fragen_index, c
         }
         case FRAGE_DIREKT_PDF:
         {
+            if (!margin_zero)
+            {
+                fprintf(file_ptr, "#set page(margin: (x: 0cm, y: 0cm))\n");
+                margin_zero = true;
+            }
             char path[100];
             memcpy(path, frage->szenario->data, frage->szenario->length);
             path[frage->szenario->length] = '\0';
@@ -576,7 +589,7 @@ void pruefung_generieren(Frage_Controller* controller, uint32_t* fragen_index, c
                 fprintf(file_ptr, "#pagebreak()\n");
             for(uint8_t k = 0; k < frage->frage_sub_count; ++k)
             {
-                fprintf(file_ptr, "#align(horizon + center)[#image(\"IHK_Fragen/dateien/%s\", page: %i, width: 100%%, fit: \"contain\")]", path, k +1);
+                fprintf(file_ptr, "#align(horizon + center)[#image(\"IHK_Fragen/dateien/%s\", page: %i, width: 100%%, fit: \"cover\")]", path, k +1);
                 if (k +1 == frage->frage_sub_count && i +1 == frage_count)
                     break;
                 if (k +1 != frage->frage_sub_count)
@@ -587,6 +600,11 @@ void pruefung_generieren(Frage_Controller* controller, uint32_t* fragen_index, c
         }
         case FRAGE_PDF_TEIL:
         {
+            if (!margin_zero)
+            {
+                fprintf(file_ptr, "#set page(margin: (x: 0cm, y: 0cm))\n");
+                margin_zero = true;
+            }
             char path[100];
             uint32_t start_page_number = first_page(frage->szenario);
             memcpy(path, frage->szenario->data, frage->szenario->length);
@@ -595,7 +613,7 @@ void pruefung_generieren(Frage_Controller* controller, uint32_t* fragen_index, c
                 fprintf(file_ptr, "#pagebreak()\n");
             for(uint8_t k = 0; k < frage->frage_sub_count; ++k)
             {
-                fprintf(file_ptr, "#align(horizon + center)[#image(\"IHK_Fragen/dateien/%s\", page: %u, width: 100%%, fit: \"contain\")]", path, start_page_number++);
+                fprintf(file_ptr, "#align(horizon + center)[#image(\"IHK_Fragen/dateien/%s\", page: %u, width: 100%%, fit: \"cover\")]", path, start_page_number++);
                 if (k +1 == frage->frage_sub_count && i +1 == frage_count)
                     break;
                 if (k +1 != frage->frage_sub_count)
